@@ -1,4 +1,4 @@
 var searchIndex = JSON.parse('{\
-"imagine":{"doc":"","i":[],"p":[]}\
+"imagine":{"doc":"","t":[],"n":[],"q":[],"d":[],"i":[],"f":[],"p":[]}\
 }');
 initSearch(searchIndex);
