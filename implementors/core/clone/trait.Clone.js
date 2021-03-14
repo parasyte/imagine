@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["imagine"] = [{"text":"impl&lt;'b&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html\" title=\"trait core::clone::Clone\">Clone</a> for <a class=\"struct\" href=\"imagine/struct.PngChunk.html\" title=\"struct imagine::PngChunk\">PngChunk</a>&lt;'b&gt;","synthetic":false,"types":["imagine::PngChunk"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

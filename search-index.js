@@ -1,4 +1,4 @@
 var searchIndex = JSON.parse('{\
-"imagine":{"doc":"","t":[],"n":[],"q":[],"d":[],"i":[],"f":[],"p":[]}\
+"imagine":{"doc":"","t":[3,11,3,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11],"n":["PngChunkIter","from_png_bytes","PngChunk","get_actual_crc","borrow","borrow_mut","try_from","into_iter","from","into","try_into","type_id","borrow","borrow_mut","try_from","from","into","try_into","type_id","fmt","next","clone"],"q":["imagine","","","","","","","","","","","","","","","","","","","","",""],"d":["","","","","","","","","","","","","","","","","","","","","",""],"i":[0,1,0,2,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,1,2],"f":[null,[[],["option",4]],null,[[],["u32",15]],[[]],[[]],[[],["result",4]],[[]],[[]],[[]],[[],["result",4]],[[],["typeid",3]],[[]],[[]],[[],["result",4]],[[]],[[]],[[],["result",4]],[[],["typeid",3]],[[["formatter",3]],["result",6]],[[],[["pngchunk",3],["option",4]]],[[],["pngchunk",3]]],"p":[[3,"PngChunkIter"],[3,"PngChunk"]]}\
 }');
 initSearch(searchIndex);
