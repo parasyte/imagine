@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["decompress_idat_to",""]],"struct":[["PngChunk",""],["PngChunkIter",""],["PngColorType",""],["PngCompressionMethod",""],["PngFilterMethod",""],["PngHeader",""],["PngInterlaceMethod",""]]});
+initSidebarItems({"fn":[["decompress_idat_to",""]],"macro":[["trace",""]],"struct":[["PngChunk",""],["PngChunkIter",""],["PngColorType",""],["PngCompressionMethod",""],["PngFilterMethod",""],["PngHeader",""],["PngInterlaceMethod",""]]});
