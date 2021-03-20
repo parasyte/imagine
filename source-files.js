@@ -1,3 +1,3 @@
 var N = null;var sourcesIndex = {};
-sourcesIndex["imagine"] = {"name":"","files":["chunk.rs","chunk_iter.rs","header.rs","lib.rs"]};
+sourcesIndex["imagine"] = {"name":"","files":["bit_source.rs","chunk.rs","chunk_iter.rs","lib.rs","png_header.rs"]};
 createSourceSidebar();
