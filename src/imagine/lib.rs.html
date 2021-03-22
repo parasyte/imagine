@@ -278,6 +278,10 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">//#![no_std]</span>
 <span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
@@ -425,7 +429,8 @@
 
     <span class="kw">if</span> <span class="ident">block_type</span> <span class="op">=</span><span class="op">=</span> <span class="number">0b00</span> {
       <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;uncompressed block&quot;</span>);
-      <span class="kw">let</span> (<span class="ident">len</span>, <span class="ident">nlen</span>) <span class="op">=</span> <span class="ident">bit_src</span>.<span class="ident">next_len_nlen</span>()<span class="question-mark">?</span>;
+      <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">bit_src</span>.<span class="ident">next_u16</span>()<span class="question-mark">?</span>;
+      <span class="kw">let</span> <span class="ident">nlen</span> <span class="op">=</span> <span class="ident">bit_src</span>.<span class="ident">next_u16</span>()<span class="question-mark">?</span>;
       <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;len: {:016b}, nlen: {:016b}&quot;</span>, <span class="ident">len</span>, <span class="ident">nlen</span>);
       <span class="kw">if</span> <span class="op">!</span><span class="ident">len</span> <span class="op">!</span><span class="op">=</span> <span class="ident">nlen</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">LenAndNLenDidNotMatch</span>);
@@ -437,7 +442,10 @@
       <span class="kw">let</span> (<span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">new</span>) <span class="op">=</span> <span class="ident">out</span>.<span class="ident">split_at_mut</span>(<span class="ident">out_position</span>);
       <span class="ident">out_position</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len_u</span>;
       <span class="kw">while</span> <span class="ident">len_u</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">bit_src</span>.<span class="ident">next_up_to_n_bytes</span>(<span class="ident">len_u</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">bit_src</span>.<span class="ident">next_up_to_n_bytes</span>(<span class="ident">len_u</span>);
+        <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">is_empty</span>() {
+          <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">UnexpectedEndOfInput</span>);
+        }
         <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">new</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">x</span>.<span class="ident">len</span>());
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">new_head</span>, <span class="ident">new_tail</span>) <span class="op">=</span> <span class="ident">new</span>.<span class="ident">split_at_mut</span>(<span class="ident">x</span>.<span class="ident">len</span>());
         <span class="ident">new_head</span>.<span class="ident">copy_from_slice</span>(<span class="ident">x</span>);
