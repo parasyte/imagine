@@ -166,6 +166,12 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -257,6 +263,9 @@
   <span class="doccomment">/// Read the next `count` bits, use with huffman data elements.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_bits_msb</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">count</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PngResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;next_bits_msb({})&quot;</span>, <span class="ident">count</span>);
+    <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+      <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="number">0</span>);
+    }
     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">spare_bit_count</span> <span class="op">&lt;</span> <span class="ident">count</span> {
       <span class="self">self</span>.<span class="ident">feed</span>(<span class="ident">count</span>)<span class="question-mark">?</span>;
     }
@@ -280,6 +289,9 @@
   <span class="doccomment">/// Read the next `count` bits, use with non-huffman data elements.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_bits_lsb</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">count</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PngResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;next_bits_lsb({})&quot;</span>, <span class="ident">count</span>);
+    <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+      <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="number">0</span>);
+    }
     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">spare_bit_count</span> <span class="op">&lt;</span> <span class="ident">count</span> {
       <span class="self">self</span>.<span class="ident">feed</span>(<span class="ident">count</span>)<span class="question-mark">?</span>;
     }

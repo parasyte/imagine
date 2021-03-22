@@ -161,9 +161,9 @@
 <span id="158">158</span>
 <span id="159">159</span>
 <span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TreeEntry</span> {
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">bit_pattern</span>: <span class="ident">u16</span>,
@@ -190,12 +190,12 @@
   <span class="doccomment">/// * `bit_count` must be 15 or less or it will be ignored.</span>
   <span class="doccomment">/// * `bit_count` 0 means that the TreeEntry doesn&#39;t participate in</span>
   <span class="doccomment">///   `bit_pattern` generation at all.</span>
-  <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">fill_in_the_codes</span>(<span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">TreeEntry</span>]) {
-    <span class="comment">// TODO: better guard against totally bogus data! We should be able to detect</span>
-    <span class="comment">// an overflow or underflow of the table and report it right away.</span>
-    <span class="kw">if</span> <span class="ident">tree</span>.<span class="ident">is_empty</span>() {
-      <span class="kw">return</span>;
-    }
+  <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">fill_in_the_codes</span>(<span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">TreeEntry</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PngResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="macro">assert</span><span class="macro">!</span>(
+      <span class="ident">tree</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span>,
+      <span class="string">&quot;It&#39;s a programmer error if you&#39;re trying to fill in an empty tree&quot;</span>
+    );
+
     <span class="kw">let</span> <span class="ident">max_bits</span> <span class="op">=</span> <span class="ident">usize</span>::<span class="ident">from</span>(<span class="ident">tree</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">te</span><span class="op">|</span> <span class="ident">te</span>.<span class="ident">bit_count</span>).<span class="ident">max</span>().<span class="ident">unwrap</span>());
 
     <span class="comment">// 1) Count the number of codes for each code length.</span>
@@ -222,20 +222,16 @@
     <span class="kw">for</span> <span class="ident">te</span> <span class="kw">in</span> <span class="ident">tree</span>.<span class="ident">iter_mut</span>() {
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">usize</span>::<span class="ident">from</span>(<span class="ident">te</span>.<span class="ident">bit_count</span>);
       <span class="kw">if</span> <span class="ident">len</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="comment">// debug assert that the bits _above_ this length are all clear bits in</span>
-        <span class="comment">// the code we&#39;re about to assign.</span>
-        <span class="macro">debug_assert_eq</span><span class="macro">!</span>(
-          <span class="ident">next_code</span>[<span class="ident">len</span>] <span class="op">&amp;</span> <span class="op">!</span>((<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">len</span>) <span class="op">-</span> <span class="number">1</span>),
-          <span class="number">0</span>,
-          <span class="string">&quot;bit pattern and bit length mismatch while attempting to fill tree {:?}&quot;</span>,
-          <span class="ident">tree</span>
-        );
-        <span class="comment">//dump!(len);</span>
-        <span class="comment">//dump!(&quot;{:016b}&quot;, next_code[len]);</span>
-        <span class="ident">te</span>.<span class="ident">bit_pattern</span> <span class="op">=</span> <span class="ident">next_code</span>[<span class="ident">len</span>];
-        <span class="ident">next_code</span>[<span class="ident">len</span>] <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">if</span> <span class="ident">next_code</span>[<span class="ident">len</span>] <span class="op">&amp;</span> <span class="op">!</span>((<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">len</span>) <span class="op">-</span> <span class="number">1</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+          <span class="ident">te</span>.<span class="ident">bit_pattern</span> <span class="op">=</span> <span class="ident">next_code</span>[<span class="ident">len</span>];
+          <span class="ident">next_code</span>[<span class="ident">len</span>] <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        } <span class="kw">else</span> {
+          <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">BadDynamicHuffmanTreeData</span>);
+        }
       }
     }
+
+    <span class="prelude-val">Ok</span>(())
   }
 }
 

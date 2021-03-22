@@ -282,6 +282,11 @@
 <span id="279">279</span>
 <span id="280">280</span>
 <span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">//#![no_std]</span>
 <span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
@@ -295,8 +300,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">trace</span> {
   ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
-    <span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;{file}:{line}&gt; &quot;</span>, <span class="ident">file</span> <span class="op">=</span> <span class="macro">file</span><span class="macro">!</span>(), <span class="ident">line</span> <span class="op">=</span> <span class="macro">line</span><span class="macro">!</span>());
-    <span class="macro">println</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>);
+    <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trace&quot;</span>) {
+      <span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;{file}:{line}&gt; &quot;</span>, <span class="ident">file</span> <span class="op">=</span> <span class="macro">file</span><span class="macro">!</span>(), <span class="ident">line</span> <span class="op">=</span> <span class="macro">line</span><span class="macro">!</span>());
+      <span class="macro">println</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>);
+    }
   }
 }
 
@@ -348,6 +355,8 @@
   <span class="ident">BackRefToBeforeOutputStart</span>,
   <span class="ident">LenAndNLenDidNotMatch</span>,
   <span class="ident">DidNotWriteAdler32Yet</span>,
+  <span class="ident">BadDynamicHuffmanTreeData</span>,
+  <span class="ident">InterlaceNotSupported</span>,
 }
 
 <span class="doccomment">/// Return: the number of bytes written</span>
@@ -429,6 +438,7 @@
 
     <span class="kw">if</span> <span class="ident">block_type</span> <span class="op">=</span><span class="op">=</span> <span class="number">0b00</span> {
       <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;uncompressed block&quot;</span>);
+      <span class="ident">bit_src</span>.<span class="ident">flush_spare_bits</span>();
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">bit_src</span>.<span class="ident">next_u16</span>()<span class="question-mark">?</span>;
       <span class="kw">let</span> <span class="ident">nlen</span> <span class="op">=</span> <span class="ident">bit_src</span>.<span class="ident">next_u16</span>()<span class="question-mark">?</span>;
       <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;len: {:016b}, nlen: {:016b}&quot;</span>, <span class="ident">len</span>, <span class="ident">nlen</span>);

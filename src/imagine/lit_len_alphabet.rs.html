@@ -71,6 +71,7 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -83,8 +84,8 @@
 <span class="kw">impl</span> <span class="ident">LitLenAlphabet</span> {
   <span class="kw">const</span> <span class="ident">COUNT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">286</span>;
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">refresh</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-    <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">tree</span>);
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">refresh</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PngResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">tree</span>)<span class="question-mark">?</span>;
 
     <span class="self">self</span>.<span class="ident">min_bit_count</span> <span class="op">=</span> <span class="number">15</span>;
     <span class="self">self</span>.<span class="ident">max_bit_count</span> <span class="op">=</span> <span class="number">0</span>;
@@ -101,6 +102,7 @@
       <span class="self">self</span>.<span class="ident">min_bit_count</span>,
       <span class="self">self</span>.<span class="ident">max_bit_count</span>
     );
+    <span class="prelude-val">Ok</span>(())
   }
 
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_and_match</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> [<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(
