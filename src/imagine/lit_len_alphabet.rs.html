@@ -83,7 +83,7 @@
 <span class="kw">impl</span> <span class="ident">LitLenAlphabet</span> {
   <span class="kw">const</span> <span class="ident">COUNT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">286</span>;
 
-  <span class="kw">fn</span> <span class="ident">refresh</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">refresh</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
     <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">tree</span>);
 
     <span class="self">self</span>.<span class="ident">min_bit_count</span> <span class="op">=</span> <span class="number">15</span>;
