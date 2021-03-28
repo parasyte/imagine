@@ -135,6 +135,63 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -149,55 +206,112 @@
   <span class="kw">pub</span> <span class="ident">interlace_method</span>: <span class="ident">PngInterlaceMethod</span>,
 }
 <span class="kw">impl</span> <span class="ident">PngHeader</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_ihdr_chunk</span>(<span class="ident">chunk</span>: <span class="ident">PngChunk</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_ihdr_chunk</span>(<span class="ident">chunk</span>: <span class="ident">PngChunk</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PngResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">chunk</span>.<span class="ident">chunk_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">ChunkType</span>::<span class="ident">IHDR</span> <span class="op">|</span><span class="op">|</span> <span class="ident">chunk</span>.<span class="ident">length</span> <span class="op">!</span><span class="op">=</span> <span class="number">13</span> {
-      <span class="kw">return</span> <span class="prelude-val">None</span>;
+      <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">NotAnIhdrChunk</span>)
+    } <span class="kw">else</span> {
+      <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_be_bytes</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">0</span>..<span class="number">4</span>].<span class="ident">try_into</span>().<span class="ident">unwrap</span>());
+      <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_be_bytes</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">4</span>..<span class="number">8</span>].<span class="ident">try_into</span>().<span class="ident">unwrap</span>());
+      <span class="kw">let</span> <span class="ident">bit_depth</span> <span class="op">=</span> <span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">8</span>];
+      <span class="kw">let</span> <span class="ident">color_type</span> <span class="op">=</span> <span class="ident">PngColorType</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">9</span>]);
+      <span class="kw">let</span> <span class="ident">compression_method</span> <span class="op">=</span> <span class="ident">PngCompressionMethod</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">10</span>]);
+      <span class="kw">let</span> <span class="ident">filter_method</span> <span class="op">=</span> <span class="ident">PngFilterMethod</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">11</span>]);
+      <span class="kw">let</span> <span class="ident">interlace_method</span> <span class="op">=</span> <span class="ident">PngInterlaceMethod</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">12</span>]);
+      <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
+        <span class="ident">width</span>,
+        <span class="ident">height</span>,
+        <span class="ident">bit_depth</span>,
+        <span class="ident">color_type</span>,
+        <span class="ident">compression_method</span>,
+        <span class="ident">filter_method</span>,
+        <span class="ident">interlace_method</span>,
+      })
     }
-    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_be_bytes</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">0</span>..<span class="number">4</span>].<span class="ident">try_into</span>().<span class="ident">unwrap</span>());
-    <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">u32</span>::<span class="ident">from_be_bytes</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">4</span>..<span class="number">8</span>].<span class="ident">try_into</span>().<span class="ident">unwrap</span>());
-    <span class="kw">let</span> <span class="ident">bit_depth</span> <span class="op">=</span> <span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">8</span>];
-    <span class="kw">let</span> <span class="ident">color_type</span> <span class="op">=</span> <span class="ident">PngColorType</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">9</span>]);
-    <span class="kw">let</span> <span class="ident">compression_method</span> <span class="op">=</span> <span class="ident">PngCompressionMethod</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">10</span>]);
-    <span class="kw">let</span> <span class="ident">filter_method</span> <span class="op">=</span> <span class="ident">PngFilterMethod</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">11</span>]);
-    <span class="kw">let</span> <span class="ident">interlace_method</span> <span class="op">=</span> <span class="ident">PngInterlaceMethod</span>(<span class="ident">chunk</span>.<span class="ident">chunk_data</span>[<span class="number">12</span>]);
-    <span class="prelude-val">Some</span>(<span class="self">Self</span> {
-      <span class="ident">width</span>,
-      <span class="ident">height</span>,
-      <span class="ident">bit_depth</span>,
-      <span class="ident">color_type</span>,
-      <span class="ident">compression_method</span>,
-      <span class="ident">filter_method</span>,
-      <span class="ident">interlace_method</span>,
+  }
+
+  <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_filter_chunk_size</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PngResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">color_type</span> {
+      <span class="ident">PngColorType</span>::<span class="ident">Y</span> <span class="kw">if</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bit_depth</span> <span class="op">=</span><span class="op">=</span> <span class="number">16</span> {
+          <span class="number">2</span>
+        } <span class="kw">else</span> {
+          <span class="number">1</span>
+        }
+      }
+      <span class="ident">PngColorType</span>::<span class="ident">INDEX</span> <span class="kw">if</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">1</span>,
+      <span class="ident">PngColorType</span>::<span class="ident">RGB</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bit_depth</span> <span class="op">=</span><span class="op">=</span> <span class="number">16</span> {
+          <span class="number">6</span>
+        } <span class="kw">else</span> {
+          <span class="number">3</span>
+        }
+      }
+      <span class="ident">PngColorType</span>::<span class="ident">YA</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bit_depth</span> <span class="op">=</span><span class="op">=</span> <span class="number">16</span> {
+          <span class="number">4</span>
+        } <span class="kw">else</span> {
+          <span class="number">2</span>
+        }
+      }
+      <span class="ident">PngColorType</span>::<span class="ident">RGBA</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bit_depth</span> <span class="op">=</span><span class="op">=</span> <span class="number">16</span> {
+          <span class="number">8</span>
+        } <span class="kw">else</span> {
+          <span class="number">4</span>
+        }
+      }
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">IllegalColorTypeBitDepthCombination</span>),
     })
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_temp_memory_requirements</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">interlace_method</span> <span class="op">!</span><span class="op">=</span> <span class="ident">PngInterlaceMethod</span>::<span class="ident">NO_INTERLACE</span> {
-      <span class="kw">return</span> <span class="prelude-val">None</span>;
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_temp_memory_bytes_per_scanline</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PngResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">interlace_method</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PngInterlaceMethod</span>::<span class="ident">NO_INTERLACE</span> {
+      <span class="kw">let</span> <span class="ident">w</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">usize</span>;
+      <span class="kw">if</span> <span class="ident">w</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">IllegalWidthZero</span>)
+      } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(
+          <span class="number">1</span> <span class="op">+</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">color_type</span> {
+            <span class="ident">PngColorType</span>::<span class="ident">Y</span> <span class="kw">if</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
+              <span class="kw">let</span> <span class="ident">bits_per_scanline</span> <span class="op">=</span>
+                <span class="ident">w</span>.<span class="ident">checked_mul</span>(<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">ok_or</span>(<span class="ident">PngError</span>::<span class="ident">OutputOverflow</span>)<span class="question-mark">?</span>;
+              (<span class="ident">bits_per_scanline</span> <span class="op">+</span> <span class="number">7</span>) <span class="op">/</span> <span class="number">8</span>
+            }
+            <span class="ident">PngColorType</span>::<span class="ident">INDEX</span> <span class="kw">if</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
+              <span class="kw">let</span> <span class="ident">bits_per_scanline</span> <span class="op">=</span>
+                <span class="ident">w</span>.<span class="ident">checked_mul</span>(<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">ok_or</span>(<span class="ident">PngError</span>::<span class="ident">OutputOverflow</span>)<span class="question-mark">?</span>;
+              (<span class="ident">bits_per_scanline</span> <span class="op">+</span> <span class="number">7</span>) <span class="op">/</span> <span class="number">8</span>
+            }
+            <span class="ident">PngColorType</span>::<span class="ident">RGB</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">w</span>
+              .<span class="ident">checked_mul</span>(<span class="number">3</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">/</span> <span class="number">8</span>))
+              .<span class="ident">ok_or</span>(<span class="ident">PngError</span>::<span class="ident">OutputOverflow</span>)<span class="question-mark">?</span>,
+            <span class="ident">PngColorType</span>::<span class="ident">YA</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">w</span>
+              .<span class="ident">checked_mul</span>(<span class="number">2</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">/</span> <span class="number">8</span>))
+              .<span class="ident">ok_or</span>(<span class="ident">PngError</span>::<span class="ident">OutputOverflow</span>)<span class="question-mark">?</span>,
+            <span class="ident">PngColorType</span>::<span class="ident">RGBA</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">w</span>
+              .<span class="ident">checked_mul</span>(<span class="number">4</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">/</span> <span class="number">8</span>))
+              .<span class="ident">ok_or</span>(<span class="ident">PngError</span>::<span class="ident">OutputOverflow</span>)<span class="question-mark">?</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">IllegalColorTypeBitDepthCombination</span>),
+          },
+        )
+      }
+    } <span class="kw">else</span> {
+      <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">InterlaceNotSupported</span>)
     }
-    <span class="kw">let</span> <span class="ident">w</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">usize</span>;
-    <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">usize</span>;
-    <span class="kw">let</span> <span class="ident">bytes_per_scanline</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">color_type</span> {
-      <span class="ident">PngColorType</span>::<span class="ident">Y</span> <span class="kw">if</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bits_per_scanline</span> <span class="op">=</span> <span class="ident">w</span>.<span class="ident">checked_mul</span>(<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span>)<span class="question-mark">?</span>;
-        (<span class="ident">bits_per_scanline</span> <span class="op">+</span> <span class="number">7</span>) <span class="op">/</span> <span class="number">8</span>
+  }
+
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_temp_memory_requirements</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PngResult</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">interlace_method</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PngInterlaceMethod</span>::<span class="ident">NO_INTERLACE</span> {
+      <span class="kw">let</span> <span class="ident">bytes_per_scanline</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_temp_memory_bytes_per_scanline</span>()<span class="question-mark">?</span>;
+      <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">usize</span>;
+      <span class="kw">if</span> <span class="ident">h</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">IllegalHeightZero</span>)
+      } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">bytes_per_scanline</span> <span class="op">*</span> <span class="ident">h</span>)
       }
-      <span class="ident">PngColorType</span>::<span class="ident">INDEX</span> <span class="kw">if</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bits_per_scanline</span> <span class="op">=</span> <span class="ident">w</span>.<span class="ident">checked_mul</span>(<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span>)<span class="question-mark">?</span>;
-        (<span class="ident">bits_per_scanline</span> <span class="op">+</span> <span class="number">7</span>) <span class="op">/</span> <span class="number">8</span>
-      }
-      <span class="ident">PngColorType</span>::<span class="ident">RGB</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="ident">w</span>.<span class="ident">checked_mul</span>(<span class="number">3</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">/</span> <span class="number">8</span>))<span class="question-mark">?</span>
-      }
-      <span class="ident">PngColorType</span>::<span class="ident">YA</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="ident">w</span>.<span class="ident">checked_mul</span>(<span class="number">2</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">/</span> <span class="number">8</span>))<span class="question-mark">?</span>
-      }
-      <span class="ident">PngColorType</span>::<span class="ident">RGBA</span> <span class="kw">if</span> [<span class="number">8</span>, <span class="number">16</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_depth</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="ident">w</span>.<span class="ident">checked_mul</span>(<span class="number">4</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">/</span> <span class="number">8</span>))<span class="question-mark">?</span>
-      }
-      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
-    };
-    <span class="prelude-val">Some</span>((<span class="ident">bytes_per_scanline</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">*</span> <span class="ident">h</span>)
+    } <span class="kw">else</span> {
+      <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">InterlaceNotSupported</span>)
+    }
   }
 }
 

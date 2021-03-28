@@ -56,6 +56,13 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">//#![no_std]</span>
 <span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
@@ -89,7 +96,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">decompress</span>::<span class="ident">decompress_idat_to</span>;
 
 <span class="kw">mod</span> <span class="ident">filtering</span>;
-<span class="kw">use</span> <span class="ident">filtering</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">filtering</span>::<span class="ident">reconstruct_in_place</span>;
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PngResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">PngError</span><span class="op">&gt;</span>;
 
@@ -111,6 +118,13 @@
   <span class="ident">DidNotWriteAdler32Yet</span>,
   <span class="ident">BadDynamicHuffmanTreeData</span>,
   <span class="ident">InterlaceNotSupported</span>,
+  <span class="ident">IllegalColorTypeBitDepthCombination</span>,
+  <span class="ident">TempMemoryWrongSizeForHeader</span>,
+  <span class="ident">NotAnIhdrChunk</span>,
+  <span class="ident">IllegalWidthZero</span>,
+  <span class="ident">IllegalHeightZero</span>,
+  <span class="ident">IllegalFilterMethod</span>,
+  <span class="ident">IllegalAdaptiveFilterType</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="imagine" data-search-js="../../search-index.js"></div>
