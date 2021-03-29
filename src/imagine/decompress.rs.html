@@ -236,9 +236,6 @@
 <span id="233">233</span>
 <span id="234">234</span>
 <span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -314,10 +311,7 @@
   }
 
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_source</span> <span class="op">=</span> <span class="ident">BitSource</span>::<span class="ident">new</span>(<span class="ident">cur_slice</span>, <span class="ident">slices</span>);
-  <span class="ident">decompress_deflate_to</span>(<span class="ident">out</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bit_source</span>)<span class="question-mark">?</span>;
-
-  <span class="comment">// TODO: read zlib adler32</span>
-  <span class="prelude-val">Err</span>(<span class="ident">PngError</span>::<span class="ident">DidNotWriteAdler32Yet</span>)
+  <span class="ident">decompress_deflate_to</span>(<span class="ident">out</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bit_source</span>)
 }
 
 <span class="doccomment">/// Return: the number of bytes written</span>

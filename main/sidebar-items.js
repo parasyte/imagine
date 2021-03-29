@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["debug_process_a_png_file",""],["main",""]]});
+initSidebarItems({"fn":[["debug_process_a_png_file",""],["main",""],["recursive_read_dir","Recursively walks over the `path` given, which must be a directory."]]});
