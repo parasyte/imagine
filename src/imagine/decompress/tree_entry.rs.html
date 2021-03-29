@@ -161,6 +161,7 @@
 <span id="158">158</span>
 <span id="159">159</span>
 <span id="160">160</span>
+<span id="161">161</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -169,6 +170,7 @@
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">bit_pattern</span>: <span class="ident">u16</span>,
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">bit_count</span>: <span class="ident">u16</span>,
 }
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trace&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">TreeEntry</span> {
   <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
     <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
@@ -244,7 +246,7 @@
     <span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">3</span>, <span class="ident">bit_pattern</span>: <span class="number">0</span> },
     <span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">3</span>, <span class="ident">bit_pattern</span>: <span class="number">0</span> },
   ];
-  <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">test_tree</span>);
+  <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">test_tree</span>).<span class="ident">unwrap</span>();
   <span class="kw">let</span> <span class="ident">expected_tree</span> <span class="op">=</span> [
     <span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">2</span>, <span class="ident">bit_pattern</span>: <span class="number">0b10</span> },
     <span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">1</span>, <span class="ident">bit_pattern</span>: <span class="number">0b0</span> },
@@ -266,7 +268,7 @@
     <span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">4</span>, <span class="ident">bit_pattern</span>: <span class="number">0</span> },
     <span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">4</span>, <span class="ident">bit_pattern</span>: <span class="number">0</span> },
   ];
-  <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">test_tree</span>);
+  <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">test_tree</span>).<span class="ident">unwrap</span>();
   <span class="kw">let</span> <span class="ident">expected_tree</span> <span class="op">=</span> [
     <span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">3</span>, <span class="ident">bit_pattern</span>: <span class="number">0b010</span> },
     <span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">3</span>, <span class="ident">bit_pattern</span>: <span class="number">0b011</span> },
@@ -307,7 +309,7 @@
   <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">280</span>..<span class="op">=</span><span class="number">287</span> {
     <span class="ident">v</span>.<span class="ident">push</span>(<span class="ident">TreeEntry</span> { <span class="ident">bit_count</span>: <span class="number">8</span>, <span class="ident">bit_pattern</span>: <span class="number">0</span> });
   }
-  <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v</span>);
+  <span class="ident">TreeEntry</span>::<span class="ident">fill_in_the_codes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v</span>).<span class="ident">unwrap</span>();
   <span class="comment">//</span>
   <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="ident">bit_pattern</span>, <span class="number">0b00110000</span>);
   <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">v</span>[<span class="number">143</span>].<span class="ident">bit_pattern</span>, <span class="number">0b10111111</span>);

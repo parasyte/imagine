@@ -63,21 +63,21 @@
 <span id="60">60</span>
 <span id="61">61</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">//#![no_std]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trace&quot;</span>), <span class="ident">no_std</span>)]</span>
 <span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
 
-<span class="kw">use</span> <span class="ident">core</span>::{
-  <span class="ident">convert</span>::{<span class="ident">TryFrom</span>, <span class="ident">TryInto</span>},
-  <span class="ident">iter</span>::<span class="ident">Iterator</span>,
-};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">convert</span>::<span class="ident">TryInto</span>, <span class="ident">iter</span>::<span class="ident">Iterator</span>};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trace&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
 
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">trace</span> {
   ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trace&quot;</span>) {
-      <span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;{file}:{line}&gt; &quot;</span>, <span class="ident">file</span> <span class="op">=</span> <span class="macro">file</span><span class="macro">!</span>(), <span class="ident">line</span> <span class="op">=</span> <span class="macro">line</span><span class="macro">!</span>());
-      <span class="macro">println</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>);
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;trace&quot;</span>)]</span> {
+      ::<span class="ident">std</span>::<span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;{file}:{line}&gt; &quot;</span>, <span class="ident">file</span> <span class="op">=</span> <span class="macro">file</span><span class="macro">!</span>(), <span class="ident">line</span> <span class="op">=</span> <span class="macro">line</span><span class="macro">!</span>());
+      ::<span class="ident">std</span>::<span class="macro">println</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>);
     }
   }
 }
