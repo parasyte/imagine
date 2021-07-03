@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["imagine","main"];
+window.ALL_CRATES = ["imagine"];
