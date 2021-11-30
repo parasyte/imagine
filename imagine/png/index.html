@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Holds all the tools for decoding PNG data."><meta name="keywords" content="rust, rustlang, rust-lang, png"><title>imagine::png - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css"disabled><link rel="stylesheet" type="text/css" href="../../dark.css"disabled><link rel="stylesheet" type="text/css" href="../../light.css"id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../imagine/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><h2 class="location">Module png</h2><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#constants">Constants</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="png" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">imagine</a>::<wbr><a class="mod" href="#">png</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/imagine/png/mod.rs.html#1-594" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Holds all the tools for decoding PNG data.</p>
+<p>The <code>png</code> portion of the crate uses no <code>unsafe</code> code. Further, it should not
+even be possible to make the library panic. However, bugs do occur, and
+hostile PNG files might be able to make the library panic. Please <a href="https://github.com/Lokathor/imagine">file an
+issue</a> if this does occur.</p>
+<h3 id="automated-png-decoding" class="section-header"><a href="#automated-png-decoding">Automated PNG Decoding</a></h3>
+<p>If you don’t need full control over the decoding process there’s functions
+provided that will take a PNG data stream and just give you the pixels in a
+<code>Vec&lt;RGBA8&gt;</code> (along with other info like width, height, etc).</p>
+<p>These functions do the allocation for you, and so they require that the
+<code>alloc</code> feature be enabled.</p>
+<h3 id="decoding-a-png-yourself" class="section-header"><a href="#decoding-a-png-yourself">Decoding a PNG Yourself</a></h3>
+<p>This crate allows you to directly control the entire PNG decoding process
+yourself if you wish. The advantage of doing this is that you can avoid any
+excess allocation.</p>
+<p>The general format of a PNG is that the information is stored in “chunks”.
+You iterate the chunks and each one gives you some info that you might
+decide to use. There’s four “critical” chunk types:</p>
+<ul>
+<li><strong>Header</strong> - This has all the important information about the image’s
+dimensions, pixel format, and if the image is interlaced or not. Using
+this information you’ll be able to know how much temporary space is
+required for decompression, and how much final space is required after
+unfiltering.</li>
+<li><strong>Palette</strong> - If an image uses indexed color it will have a palette of
+what index values map to what <code>RGB8</code> values.</li>
+<li><strong>Image Data</strong> - One or more chunks of compressed data. All of the
+compressed data forms a single zlib data stream. All of the image data
+chunks should appear one after the other.</li>
+<li><strong>End</strong> - The last chunk, lets you know you had the full PNG and your data
+wasn’t truncated accidentally.</li>
+</ul>
+<p>After the header and before the image data there are also zero or more
+“ancillary” chunks which might give you additional information about the
+image. If you just want to display the image, the ancillary chunk that’s
+most likely to be important to you is if there’s a transparency chunk.</p>
+<h4 id="step-by-step" class="section-header"><a href="#step-by-step">Step By Step</a></h4>
+<p>First you’ll want an iterator over the PNG chunks. In this example, we use a
+raw chunk iterator, parse each raw chunk into a more structured chunk value,
+and then filter any errors for only the most critical errors using the
+<a href="fn.critical_errors_only.html" title="critical_errors_only"><code>critical_errors_only</code></a> helper filter.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">imagine::png</span>::<span class="kw-2">*</span>;
+<span class="kw">let</span> <span class="ident">png</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;data from somewhere&quot;</span>);
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span> <span class="ident">RawPngChunkIter::new</span>(<span class="ident">png</span>).<span class="ident">map</span>(<span class="ident">PngChunk::try_from</span>).<span class="ident">filter</span>(<span class="ident">critical_errors_only</span>);</code></pre></div>
+<p>Once the iterator is ready you need to get the header data. This comes in
+the form of an <a href="struct.IHDR.html" title="IHDR"><code>IHDR</code></a> chunk, and it should be the very first chunk you
+find. Assuming that you’re inside of a function that returns <code>Result&lt;_, PngError&gt;</code> you’d use a few <code>?</code> operators here and there, something like
+this.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">ihdr</span>: <span class="ident">IHDR</span> <span class="op">=</span>
+  <span class="ident">it</span>.<span class="ident">next</span>().<span class="ident">ok_or</span>(<span class="ident">PngError::NoChunksPresent</span>)<span class="question-mark">?</span><span class="question-mark">?</span>.<span class="ident">to_ihdr</span>().<span class="ident">ok_or</span>(<span class="ident">PngError::FirstChunkNotIHDR</span>)<span class="question-mark">?</span>;</code></pre></div>
+<p>Now you have the PNG’s header information. This tells you:</p>
+<ul>
+<li>The dimensions of the image</li>
+<li>The pixel format of the image’s pixels</li>
+<li>If the decompressed data of the image is interlaced or not.</li>
+</ul>
+<p>When storing the PNG, the raw pixel values are first “filtered” (to try and
+make them more compression-friendly), and then compressed into a Zlib data
+stream. To decode the PNG info you have to reverse the operations. First
+decompressing, and then unfiltering.</p>
+<ul>
+<li><strong>Unfiltering:</strong> The decompressed data will be a series of lines for
+images with an extra byte on the front of each line which says what filter
+method was used for that line. The unfiltering can be performed in place,
+but leaves the filter markers between each line of useful pixel data. Most
+other code doesn’t expect this layout, so you’ll usually have to copy the
+lines into a different buffer.</li>
+<li><strong>De-interlacing:</strong> If the image is interlaced then the data won’t be
+stored as a single series of filtered bytes and lines. Instead, the
+overall image is stored as a series seven “reduced” images of varying
+resolutions. Again, most code doesn’t expect this arrangement of the data,
+so you’ll usually have to de-interlace the data to make it usable.</li>
+<li><strong>Flipping:</strong> The PNG format assumes that the origin pixel is the top
+left, with scanlines going left to right, top to bottom. If your use of
+the data doesn’t have this same assumption you’ll need to flip the rows
+and/or columns of the pixels.</li>
+<li><strong>Pixel Format Changes:</strong> The PNG’s stored pixel format might not be the
+same as your desired target pixel format. Particularly, any pixel format
+that packs multiple pixels within a byte is unlikely to be usable by
+common code.</li>
+</ul>
+<p>The decompression is generally done as its own stage of work.</p>
+<p>All the other steps (unfiltering, de-interlacing, etc) can generally be
+combined into just one additional pass over the decompressed data that
+unfilters the data in place while also optionally passing out info to a
+callback which get’s the PNG position and the data, and can then perform any
+position or format changes.</p>
+<p>With all of that explanation out of the way, we can get our buffer to
+decompress the zlib stream into. For this we use the
+<a href="struct.IHDR.html#method.temp_memory_requirement">temp_memory_requirement</a> method of our
+header. This will return the number of bytes that we’ll need. You could
+allocate a new buffer, or perhaps you’re decoding many PNGs and you already
+have a sufficiently large buffer from the last PNG, either way is fine.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">temp_memory_buffer</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">ihdr</span>.<span class="ident">temp_memory_requirement</span>()];</code></pre></div>
+<p>And then we can decompress the <code>IDAT</code> chunk data into the temporary buffer.
+A function for this is provided called <a href="fn.decompress_idat_to_temp_storage.html" title="decompress_idat_to_temp_storage">decompress_idat_to_temp_storage</a>,
+which does basically what it says. To make our chunk iterator from before
+first we want to advance the iterator so that the <code>IDAT</code> is the next chunk
+available. For this we’ll use the <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.peekable">peekable</a> method,
+then we’ll keep peeking at the next output until the <code>IDAT</code> would be the
+next output.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idat_peek</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">peekable</span>();
+<span class="kw">loop</span> {
+  <span class="kw">match</span> <span class="ident">idat_peek</span>.<span class="ident">peek</span>() {
+    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">PngChunk::IDAT</span>(<span class="kw">_</span>))) =&gt; <span class="kw">break</span>,
+    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PngError::NoIDATChunks</span>),
+    <span class="kw">_</span> =&gt; {
+      <span class="ident">idat_peek</span>.<span class="ident">next</span>();
+    }
+  }
+}</code></pre></div>
+<p>Now that the <code>idat_peek</code> iterator is in position, we’ll convert it to a
+slice iterator using <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.filter_map">filter_map</a> method, and then run
+the decompression.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">idat_slice_it</span> <span class="op">=</span> <span class="ident">idat_peek</span>.<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">r_chunk</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">r_chunk</span> {
+  <span class="prelude-val">Ok</span>(<span class="ident">PngChunk::IDAT</span>(<span class="ident">IDAT</span> { <span class="ident">data</span> })) =&gt; <span class="prelude-val">Some</span>(<span class="ident">data</span>),
+  <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+});
+<span class="ident">decompress_idat_to_temp_storage</span>(<span class="kw-2">&amp;mut</span> <span class="ident">temp_memory_buffer</span>, <span class="ident">idat_slice_it</span>)<span class="question-mark">?</span>;</code></pre></div>
+<p>This gives us the filtered bytes in the output buffer. Now we still have to
+unfilter the data.</p>
+<p>Each scanline of the image has a filter byte which says what filter applies
+to the rest of that scanline. There are four filters that have an effect, as
+well as a “no op” filter that doesn’t actually change the data. Each
+scanline can use a separate filter type, based on what the PNG encoder
+thought was best. The filtered and unfiltered data take up the same amount
+of space, so the unfiltering is performed “in place” on the temporary
+buffer’s bytes. As individual pixels are produced by the unfiltering they’re
+both written back to the temporary buffer (because they can affect future
+scanlines), and they’re also passed to a user-provided callback which gets
+the position within the PNG as well as the pixel data.</p>
+<ul>
+<li>The callback can flip the pixel positions when writing out the data if a
+horizontal or vertical flip is required.</li>
+<li>Any interlaced images will give pixels to the callback out of order, but
+each pixel should appear just once, so as long as your callback writes to
+the correct position each time the image will be automatically
+de-interlaced as it’s unfiltered.</li>
+</ul>
+<p>The filtering process works on byte arrays at a time, regardless of the
+exact format of a pixel. For example, the <code>Y16</code> and <code>YA8</code> formats are both 2
+bytes each, and so will unfilter <code>[u8; 2]</code> at a time, regardless of the
+channel differences. The <a href="../../bytemuck/fn.cast.html"><code>cast</code></a> function is your friend
+here.</p>
+<p>One complication is that if there’s less than 8 bits per pixel then there
+will be more than one pixel packed within a single byte. This can happen
+with both grayscale and indexed images. In this situation your callback will
+be run once for each individual pixel, and each call will get a single byte
+with the correct data in the <em>lowest</em> bits of each output byte.</p>
+<p><strong>TODO:</strong> how do sub-8 bit depths and interlacing interact</p>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.IDAT.html" title="imagine::png::IDAT struct">IDAT</a></div><div class="item-right docblock-short"><p><code>IDAT</code>: Image data.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.IEND.html" title="imagine::png::IEND struct">IEND</a></div><div class="item-right docblock-short"><p><code>IEND</code>: Image trailer.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.IHDR.html" title="imagine::png::IHDR struct">IHDR</a></div><div class="item-right docblock-short"><p><code>IHDR</code>: Image header.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PLTE.html" title="imagine::png::PLTE struct">PLTE</a></div><div class="item-right docblock-short"><p><code>PLTE</code>: Palette.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RawPngChunk.html" title="imagine::png::RawPngChunk struct">RawPngChunk</a></div><div class="item-right docblock-short"><p>A raw portion of a PNG datastream.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RawPngChunkIter.html" title="imagine::png::RawPngChunkIter struct">RawPngChunkIter</a></div><div class="item-right docblock-short"><p>An iterator over the raw chunks of a PNG.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.cHRM.html" title="imagine::png::cHRM struct">cHRM</a></div><div class="item-right docblock-short"><p><code>cHRM</code>: Primary chromaticities and white point.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.gAMA.html" title="imagine::png::gAMA struct">gAMA</a></div><div class="item-right docblock-short"><p><code>gAMA</code>: Image gamma.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.hIST.html" title="imagine::png::hIST struct">hIST</a></div><div class="item-right docblock-short"><p><code>hIST</code>: Image Histogram.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.iCCP.html" title="imagine::png::iCCP struct">iCCP</a></div><div class="item-right docblock-short"><p><code>iCCP</code>: Embedded ICC profile.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.iTXt.html" title="imagine::png::iTXt struct">iTXt</a></div><div class="item-right docblock-short"><p><code>iTXt</code>: International textual data.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.pHYs.html" title="imagine::png::pHYs struct">pHYs</a></div><div class="item-right docblock-short"><p><code>pHYs</code>: Physical pixel dimensions.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.sPLT.html" title="imagine::png::sPLT struct">sPLT</a></div><div class="item-right docblock-short"><p><code>sPLT</code>: Suggested palette data.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.sRGB.html" title="imagine::png::sRGB struct">sRGB</a></div><div class="item-right docblock-short"><p><code>sRGB</code>: Standard RGB colour space.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.tEXt.html" title="imagine::png::tEXt struct">tEXt</a></div><div class="item-right docblock-short"><p><code>tEXt</code>: Textual data.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.tIME.html" title="imagine::png::tIME struct">tIME</a></div><div class="item-right docblock-short"><p><code>tIME</code>: Image last-modification time.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.zTXt.html" title="imagine::png::zTXt struct">zTXt</a></div><div class="item-right docblock-short"><p><code>zTXt</code>: Compressed textual data.</p>
+</div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.PngChunk.html" title="imagine::png::PngChunk enum">PngChunk</a></div><div class="item-right docblock-short"><p>Enum for a fully parsed PNG chunk.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.PngError.html" title="imagine::png::PngError enum">PngError</a></div><div class="item-right docblock-short"><p>Errors that can happen when trying to process a PNG.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.PngPixelFormat.html" title="imagine::png::PngPixelFormat enum">PngPixelFormat</a></div><div class="item-right docblock-short"><p>The pixel formats allowed in a PNG file.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.PngSrgbIntent.html" title="imagine::png::PngSrgbIntent enum">PngSrgbIntent</a></div><div class="item-right docblock-short"><p>Used by <a href="struct.sRGB.html" title="sRGB"><code>sRGB</code></a> chunks.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.bKGD.html" title="imagine::png::bKGD enum">bKGD</a></div><div class="item-right docblock-short"><p><code>bKGD</code>: Background colour.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.sBIT.html" title="imagine::png::sBIT enum">sBIT</a></div><div class="item-right docblock-short"><p><code>sBIT</code>: Significant bits.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.tRNS.html" title="imagine::png::tRNS enum">tRNS</a></div><div class="item-right docblock-short"><p><code>tRNS</code>: Transparency.</p>
+</div></div></div><h2 id="constants" class="section-header"><a href="#constants">Constants</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="constant" href="constant.PNG_SIGNATURE.html" title="imagine::png::PNG_SIGNATURE constant">PNG_SIGNATURE</a></div><div class="item-right docblock-short"><p>The first eight bytes of a PNG datastream should match these bytes.</p>
+</div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.critical_errors_only.html" title="imagine::png::critical_errors_only fn">critical_errors_only</a></div><div class="item-right docblock-short"><p>Useful as a <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.filter"><code>filter</code></a> over chunk parsing results so that
+non-critical errors are filtered away.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.decompress_idat_to_temp_storage.html" title="imagine::png::decompress_idat_to_temp_storage fn">decompress_idat_to_temp_storage</a></div><div class="item-right docblock-short"><p>Decompresses IDAT bytes to the temporary buffer.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.interlaced_pos_to_full_pos.html" title="imagine::png::interlaced_pos_to_full_pos fn">interlaced_pos_to_full_pos</a></div><div class="item-right docblock-short"><p>Converts a reduced image location into the full image location.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.reduced_image_dimensions.html" title="imagine::png::reduced_image_dimensions fn">reduced_image_dimensions</a></div><div class="item-right docblock-short"><p>Given the dimensions of the full PNG image, computes the size of each
+reduced image.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.unfilter_decompressed_data.html" title="imagine::png::unfilter_decompressed_data fn">unfilter_decompressed_data</a></div><div class="item-right docblock-short"><p>Given the <code>header</code>, <code>decompressed</code> buffer, and a per-pixel <code>op</code>, unfilters
+the data and passes each pixel output to the <code>op</code> as the unfiltering occurs.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="imagine" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (6db0a0e9a 2021-11-29)" ></div>
+</body></html>

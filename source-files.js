@@ -1,3 +1,6 @@
 var N = null;var sourcesIndex = {};
-sourcesIndex["imagine"] = {"name":"","dirs":[{"name":"decompress","files":["bit_source.rs","code_length_alphabet.rs","dist_alphabet.rs","fixed_huffman_tree.rs","lit_len_alphabet.rs","tree_entry.rs"]}],"files":["chunk.rs","chunk_iter.rs","decompress.rs","filtering.rs","lib.rs","png_header.rs"]};
+sourcesIndex["adler"] = {"name":"","files":["algo.rs","lib.rs"]};
+sourcesIndex["bytemuck"] = {"name":"","files":["contiguous.rs","lib.rs","offset_of.rs","pod.rs","transparent.rs","zeroable.rs"]};
+sourcesIndex["imagine"] = {"name":"","dirs":[{"name":"png","files":["chunks.rs","mod.rs"]}],"files":["lib.rs","pixel_formats.rs"]};
+sourcesIndex["miniz_oxide"] = {"name":"","dirs":[{"name":"deflate","files":["buffer.rs","core.rs","mod.rs","stream.rs"]},{"name":"inflate","files":["core.rs","mod.rs","output_buffer.rs","stream.rs"]}],"files":["lib.rs","shared.rs"]};
 createSourceSidebar();

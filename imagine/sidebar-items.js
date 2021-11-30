@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PngError",""]],"fn":[["decompress_idat_to","Return: the number of bytes written"],["reconstruct_in_place",""]],"macro":[["trace",""]],"struct":[["PngChunk",""],["PngChunkIter",""],["PngColorType",""],["PngCompressionMethod",""],["PngFilterMethod",""],["PngHeader",""],["PngInterlaceMethod",""]],"type":[["PngResult",""]]});
+initSidebarItems({"mod":[["pixel_formats","Module for pixel formats."],["png","Holds all the tools for decoding PNG data."]]});

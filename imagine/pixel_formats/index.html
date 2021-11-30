@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Module for pixel formats."><meta name="keywords" content="rust, rustlang, rust-lang, pixel_formats"><title>imagine::pixel_formats - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css"disabled><link rel="stylesheet" type="text/css" href="../../dark.css"disabled><link rel="stylesheet" type="text/css" href="../../light.css"id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../imagine/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><h2 class="location">Module pixel_formats</h2><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><div id="sidebar-vars" data-name="pixel_formats" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">imagine</a>::<wbr><a class="mod" href="#">pixel_formats</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/imagine/pixel_formats.rs.html#1-209" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Module for pixel formats.</p>
+<p>There’s two main factors with a pixel format:</p>
+<ul>
+<li><strong>Channels:</strong> generally one or more of red, green, blue, and alpha. Some
+formats only use gray, marked as “Y” in format names. Other channel
+combinations also exist.</li>
+<li><strong>Bit Depth:</strong> how many bits per channel. All current formats have
+identical bit depth for all channels, but formats do exist with different
+depths per channel.</li>
+</ul>
+<p>When the bit depth and channel layout allows, multiple pixels can be packed
+within a single byte.</p>
+<p><strong>Note:</strong> All of the current formats are what’s required for PNG support.
+Other formats might be added in the future as more image formats are added.</p>
+<h3 id="format-conversion" class="section-header"><a href="#format-conversion">Format Conversion</a></h3>
+<p>Since pixel formats have two main factors (channels and depth), there’s two
+ways that you might change data between pixel formats.</p>
+<h4 id="between-gray-and-rgb" class="section-header"><a href="#between-gray-and-rgb">Between Gray and RGB</a></h4>
+<p>When going between grayscale and RGB coloring, the simple method is to use
+an even split (to RGB) or an average (to Gray).</p>
+<p>However, human eyes don’t respond equally to all three colors. To account
+for this, you can weight the value of each channel.</p>
+<div class="example-wrap"><pre class="language-text"><code>Y = 0.299 * R + 0.587 * G + 0.114 * B</code></pre></div><h4 id="between-bit-depths" class="section-header"><a href="#between-bit-depths">Between Bit Depths</a></h4>
+<p>All current formats have channel values stored only as integer values. Even
+so, there’s more than one way to convert between bit depths.</p>
+<ul>
+<li>If sticking with integers: to <em>reduce</em> bit depth just keep the top X many
+bits, and to <em>increase</em> bit depth you should use the current bit pattern
+as the top X many bits, and then copy that bit pattern down however many
+times is required to fill in all newly added bits.</li>
+<li>Alternately, you can use floats: in this case, increaseing or decreasing
+the bit depth uses the same system. Convert the integer value to a float
+and divide by the maximum value of the starting bit depth (giving a
+normalized value), then multiply by the maximum of the target bit depth,
+and convert back to an integer.</li>
+</ul>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Index1x8.html" title="imagine::pixel_formats::Index1x8 struct">Index1x8</a></div><div class="item-right docblock-short"><p>Eight 1-bit indexd pixels, tightly packed.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Index2x4.html" title="imagine::pixel_formats::Index2x4 struct">Index2x4</a></div><div class="item-right docblock-short"><p>Four 2-bit indexed pixels, tightly packed.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Index4x2.html" title="imagine::pixel_formats::Index4x2 struct">Index4x2</a></div><div class="item-right docblock-short"><p>Two 4-bit indexed pixels, tightly packed.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Index8.html" title="imagine::pixel_formats::Index8 struct">Index8</a></div><div class="item-right docblock-short"><p>An 8-bit indexed pixel.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RGB8.html" title="imagine::pixel_formats::RGB8 struct">RGB8</a></div><div class="item-right docblock-short"><p>An RGB value, 8-bits per channel.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RGB16_BE.html" title="imagine::pixel_formats::RGB16_BE struct">RGB16_BE</a></div><div class="item-right docblock-short"><p>An RGB value, 16-bits per channel.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RGBA8.html" title="imagine::pixel_formats::RGBA8 struct">RGBA8</a></div><div class="item-right docblock-short"><p>An 8-bits per channel RGBA pixel.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RGBA16_BE.html" title="imagine::pixel_formats::RGBA16_BE struct">RGBA16_BE</a></div><div class="item-right docblock-short"><p>A 16-bits per channel RGBA pixel.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Y1x8.html" title="imagine::pixel_formats::Y1x8 struct">Y1x8</a></div><div class="item-right docblock-short"><p>Eight 1-bit greyscale pixels, tightly packed.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Y2x4.html" title="imagine::pixel_formats::Y2x4 struct">Y2x4</a></div><div class="item-right docblock-short"><p>Four 2-bit greyscale pixels, tightly packed.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Y4x2.html" title="imagine::pixel_formats::Y4x2 struct">Y4x2</a></div><div class="item-right docblock-short"><p>Two 4-bit greyscale pixels, tightly packed.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Y8.html" title="imagine::pixel_formats::Y8 struct">Y8</a></div><div class="item-right docblock-short"><p>An 8-bit greyscale pixel.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Y16_BE.html" title="imagine::pixel_formats::Y16_BE struct">Y16_BE</a></div><div class="item-right docblock-short"><p>A 16-bit greyscale pixel.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.YA8.html" title="imagine::pixel_formats::YA8 struct">YA8</a></div><div class="item-right docblock-short"><p>An 8-bits per channel greyscale + alpha pixel.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.YA16_BE.html" title="imagine::pixel_formats::YA16_BE struct">YA16_BE</a></div><div class="item-right docblock-short"><p>A 16-bits per channel greyscale + alpha pixel.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="imagine" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (6db0a0e9a 2021-11-29)" ></div>
+</body></html>
